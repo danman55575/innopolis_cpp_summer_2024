@@ -1,228 +1,126 @@
 #include <gtest/gtest.h>
 #include <iostream>
 #include <string>
+#include <list>
 #include <stdexcept>
-#include <fstream>
-#include "tknparser.hpp"
+#include <utility>
+#include <vector>
+#include <sstream>
+#include "format.hpp"
+#include "format.cpp"
 
-void write_to_file(const std::string& line) {
-    std::ofstream out_file("test.txt", std::ios_base::app | std::ios_base::out);
-    if (!out_file.is_open()) {
-        throw std::runtime_error("Cannot open file!");
-    }
-    out_file << line << "\n";
-    out_file.close();
+TEST(ResultCorrectness, correct_format_string_result_test_1) {
+    std::string res1 = format("I love {0}!", "Innopolis");
+    std::string correct_res1 = "I love Innopolis!";
+    std::string res2 = format("  I {0} Innopolis !", "love");
+    std::string correct_res2 = "  I love Innopolis !";
+    std::string res3 = format("{0} love Innopolis!", "I");
+    std::string correct_res3 = "I love Innopolis!";
+    EXPECT_EQ(res1, correct_res1);
+    EXPECT_EQ(res2, correct_res2);
+    EXPECT_EQ(res3, correct_res3);
 }
 
-void clear_file() {
-    std::ofstream out_file("test.txt");
-    if (!out_file.is_open()) {
-        throw std::runtime_error("Cannot open file!");
-    }
-    out_file.close();
+TEST(ResultCorrectness, correct_format_string_result_test_2) {
+    std::string correct_res = "Do you love Innopolis?";
+    std::string res1 = format("Do {1} love {0}?",
+    "Innopolis", "you");
+    std::string res2 = format("{0} you{1} Innopolis?",
+    "Do", " love");
+    std::string res3 = format("D{0}{1}y{0}u{1}l{0}ve{1}Inn{0}p{0}lis?",
+    "o", " ");
+    EXPECT_EQ(res1, correct_res);
+    EXPECT_EQ(res2, correct_res);
+    EXPECT_EQ(res3, correct_res);
 }
 
-TEST(ParseCorrectness, correct_split_test_1) {
-    TokenParser tokenParser{};
-    tokenParser.SetStringTokenCallback(
-        [](const std::string& token){write_to_file("String:" + token);});
-    tokenParser.SetDigitTokenCallback(
-        [](uint64_t num){write_to_file("Number:" + std::to_string(num));});
-    std::string line = "Innopolis \n\nrobot\n\n\n\t345\t\t";
-    tokenParser.Parse(line);
-
-    std::ifstream in_file;
-    in_file.open("test.txt");
-    if (!in_file.is_open()) {
-        throw std::runtime_error("Cannot open file!");
-    }
-
-    std::string word;
-    in_file >> word;
-    EXPECT_EQ(word, "String:Innopolis");
-    in_file >> word;
-    EXPECT_EQ(word, "String:robot");
-    in_file >> word;
-    EXPECT_EQ(word, "Number:345");
-
-    in_file.close();
-    clear_file();
+TEST(ResultCorrectness, correct_format_string_result_test_3) {
+    std::string correct_res = "Have you heard about 108 bar?";
+    std::string res1 = format("{3} you {2} {1} {0} bar?",
+    108, "about", "heard", "Have");
+    std::string res2 = format("Have you heard about {2}{0}{1} bar?",
+    0, 8, 1);
+    std::string res3 = format("Have{1}heard{2}10{0}",
+    "8 bar?", " you ", " about ");
+    EXPECT_EQ(res1, correct_res);
+    EXPECT_EQ(res2, correct_res);
+    EXPECT_EQ(res3, correct_res);
 }
 
-TEST(ParseCorrectness, correct_split_test_2) {
-    TokenParser tokenParser{};
-    tokenParser.SetStringTokenCallback(
-        [](const std::string& token){write_to_file("String:" + token);});
-    tokenParser.SetDigitTokenCallback(
-        [](uint64_t num){write_to_file("Number:" + std::to_string(num));});
-    std::string line = "\n\n \t N1umber\t\t 108\n i5s \n magic902 \t\t";
-    tokenParser.Parse(line);
-
-    std::ifstream in_file;
-    in_file.open("test.txt");
-    if (!in_file.is_open()) {
-        throw std::runtime_error("Cannot open file!");
+TEST(ExceptionsCorrectness, correct_exception_throw_test_1) {
+    try {
+        std::string res = format("What a wonde{1rful day!");
+    } catch (const SyntaxException& se) {
+        EXPECT_EQ(se.what(), "Unexpected symbol 'r' in curly braces");
+    } catch (...) {
+        EXPECT_EQ("Exception", "SyntaxException");
     }
-
-    std::string word;
-    in_file >> word;
-    EXPECT_EQ(word, "String:N1umber");
-    in_file >> word;
-    EXPECT_EQ(word, "Number:108");
-    in_file >> word;
-    EXPECT_EQ(word, "String:i5s");
-    in_file >> word;
-    EXPECT_EQ(word, "String:magic902");
-
-    in_file.close();
-    clear_file();
 }
 
-TEST(ParseCorrectness, correct_split_test_3) {
-    TokenParser tokenParser{};
-    tokenParser.SetStringTokenCallback(
-        [](const std::string& token){write_to_file("String:" + token);});
-    tokenParser.SetDigitTokenCallback(
-        [](uint64_t num){write_to_file("Number:" + std::to_string(num));});
-    std::string line = "\t\n12 012 003r4 \n\n\ttour8p\t\n";
-    tokenParser.Parse(line);
-
-    std::ifstream in_file;
-    in_file.open("test.txt");
-    if (!in_file.is_open()) {
-        throw std::runtime_error("Cannot open file!");
+TEST(ExceptionsCorrectness, correct_exception_throw_test_2) {
+    try {
+        std::string res = format("Segment t{1}ree is used often",
+        13500, "r");
+    } catch (const MissingArgumentValueException& mave) {
+        EXPECT_EQ(mave.what(), "Argument's label 0 is not found");
+    } catch(...) {
+        EXPECT_EQ("Exception", "MissingArgumentValueException");
     }
-
-    std::string word;
-    in_file >> word;
-    EXPECT_EQ(word, "Number:12");
-    in_file >> word;
-    EXPECT_EQ(word, "Number:12");
-    in_file >> word;
-    EXPECT_EQ(word, "String:003r4");
-    in_file >> word;
-    EXPECT_EQ(word, "String:tour8p");
-
-    in_file.close();
-    clear_file();
 }
 
-TEST(CallbackFunctioning, correct_callback_functioning_test_1) {
-    TokenParser tokenParser{};
-    tokenParser.SetStartCallback(
-        [](){write_to_file("Start_Parsing...\n");});
-    tokenParser.SetStringTokenCallback(
-        [](const std::string& token){write_to_file("String:" + token);});
-    tokenParser.SetDigitTokenCallback(
-        [](uint64_t num){write_to_file("Number:" + std::to_string(num));});
-    tokenParser.SetEndCallback(
-        [](){write_to_file("Finish_Parsing\n");});
-    std::string line = "\n\nInnoParty\n\n";
-    tokenParser.Parse(line);
-
-    std::ifstream in_file;
-    in_file.open("test.txt");
-    if (!in_file.is_open()) {
-        throw std::runtime_error("Cannot open file!");
+TEST(ExceptionsCorrectness, correct_exception_throw_test_3) {
+    try {
+        std::string res = format("Compiler} does not understand me...", 5);
+    } catch (const SyntaxException& se) {
+        EXPECT_EQ(se.what(), "Unexpected symbol '}'");
+    } catch(...) {
+        EXPECT_EQ("Exception", "SyntaxException");
     }
-
-    std::string word;
-    in_file >> word;
-    EXPECT_EQ(word, "Start_Parsing...");
-    in_file >> word;
-    EXPECT_EQ(word, "String:InnoParty");
-    in_file >> word;
-    EXPECT_EQ(word, "Finish_Parsing");
-
-    in_file.close();
-    clear_file();
 }
 
-TEST(CallbackFunctioning, correct_callback_functioning_test_2) {
-    TokenParser tokenParser{};
-    tokenParser.SetStartCallback(
-        [](){write_to_file("Start_callback_only");});
-    tokenParser.SetStringTokenCallback(
-        [](const std::string& token){write_to_file("String:" + token);});
-    tokenParser.SetDigitTokenCallback(
-        [](uint64_t num){write_to_file("Number:" + std::to_string(num));});
-    std::string line = "Bar \t\t \n 108";
-    tokenParser.Parse(line);
-
-    std::ifstream in_file;
-    in_file.open("test.txt");
-    if (!in_file.is_open()) {
-        throw std::runtime_error("Cannot open file!");
+TEST(ExceptionsCorrectness, correct_exception_throw_test_4) {
+    try {
+        std::string res = format("My secret is {}", 50, "I am");
+    } catch (const SyntaxException& se) {
+        EXPECT_EQ(se.what(), "Unexpected symbol '}'");
+    } catch(...) {
+        EXPECT_EQ("Exception", "SyntaxException");
     }
-
-    std::string word;
-    in_file >> word;
-    EXPECT_EQ(word, "Start_callback_only");
-    in_file >> word;
-    EXPECT_EQ(word, "String:Bar");
-    in_file >> word;
-    EXPECT_EQ(word, "Number:108");
-
-    in_file.close();
-    clear_file();
 }
 
-TEST(DigitParsing, correct_digit_parsing_test_1) {
-    TokenParser tokenParser{};
-    tokenParser.SetStringTokenCallback(
-        [](const std::string& token){write_to_file("String:" + token);});
-    tokenParser.SetDigitTokenCallback(
-        [](uint64_t num){write_to_file("Number:" + std::to_string(num));});
-    std::string line = "12934 0019234  489u9039 -39485";
-    tokenParser.Parse(line);
-
-    std::ifstream in_file;
-    in_file.open("test.txt");
-    if (!in_file.is_open()) {
-        throw std::runtime_error("Cannot open file!");
+TEST(ExceptionsCorrectness, correct_exception_throw_test_5) {
+    try {
+        std::string res = format("{1001} of red roses are in Linux", "Yes");
+    } catch (const ArgumentQuantityException& aqe) {
+        EXPECT_EQ(aqe.what(), "Amount of arguments cannot exceed 1000");
+    } catch(...) {
+        EXPECT_EQ("Exception", "ArgumentQuantityException");
     }
-
-    std::string word;
-    in_file >> word;
-    EXPECT_EQ(word, "Number:12934");
-    in_file >> word;
-    EXPECT_EQ(word, "Number:19234");
-    in_file >> word;
-    EXPECT_EQ(word, "String:489u9039");
-    in_file >> word;
-    EXPECT_EQ(word, "String:-39485");
-
-    in_file.close();
-    clear_file();
 }
 
-TEST(DigitParsing, correct_digit_parsing_test_2) {
-    TokenParser tokenParser{};
-    tokenParser.SetStringTokenCallback(
-        [](const std::string& token){write_to_file("String:" + token);});
-    tokenParser.SetDigitTokenCallback(
-        [](uint64_t num){write_to_file("Number:" + std::to_string(num));});
-    std::string line = "0018446744073709551615\n00018446744073709551620\n-0 0";
-    tokenParser.Parse(line);
-
-    std::ifstream in_file;
-    in_file.open("test.txt");
-    if (!in_file.is_open()) {
-        throw std::runtime_error("Cannot open file!");
+TEST(ExceptionsCorrectness, correct_exception_throw_test_6) {
+    try {
+        std::string res = format("Good {0} over comprehensive {1}",
+        "mind");
+    } catch (const ArgumentQuantityException& aqe) {
+        EXPECT_EQ(aqe.what(), "Number of arguments is less than 1");
+    } catch(...) {
+        EXPECT_EQ("Exception", "ArgumentQuantityException");
     }
+}
 
-    std::string word;
-    in_file >> word;
-    EXPECT_EQ(word, "Number:18446744073709551615");
-    in_file >> word;
-    EXPECT_EQ(word, "String:00018446744073709551620");
-    in_file >> word;
-    EXPECT_EQ(word, "String:-0");
-    in_file >> word;
-    EXPECT_EQ(word, "Number:0");
-
-    in_file.close();
-    clear_file();
+TEST(ExceptionsCorrectness, correct_exception_throw_test_7) {
+    try {
+        std::string res = format("{0} {1} {2} {5} {7}?",
+        "Do", "you", "have", "night", "work");
+    } catch (const MissingArgumentValueException& mave) {
+        EXPECT_EQ(mave.what(), "Argument's label 3 is not found");
+        std::string res = "Exception is related";
+        res += " to unexpected labelling of the arguments";
+        EXPECT_EQ(mave.info(), res);
+    } catch(...) {
+        EXPECT_EQ("Exception", "MissingArgumentValueException");
+    }
 }
 
 int main(int argc, char **argv) {

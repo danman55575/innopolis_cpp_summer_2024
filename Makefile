@@ -22,13 +22,19 @@ check:
 	cppcheck --enable=all --suppress=missingIncludeSystem -I src .
 
 build: $(OBJECTS)
-	$(CC) $(FLAGS) -o myapp main.o tknparser.o $(TEST_FLAGS)
+	$(CC) $(FLAGS) -o myapp main.o format.o base_substitution.o format_exceptions.o $(TEST_FLAGS)
 
-main.o: main.cpp tknparser.hpp
-	$(CC) $(FLAGS) -c main.cpp $(TEST_FLAGS)
+main.o: main.cpp format.cpp format.hpp
+	$(CC) $(FLAGS) -c main.cpp
 
-tknparser.o: tknparser.cpp tknparser.hpp
-	$(CC) $(FLAGS) -c tknparser.cpp
+format.o: format.cpp format.hpp base_substitution.o format_exceptions.o
+	$(CC) $(FLAGS) -c format.cpp
+
+base_substitution.o: base_substitution.cpp base_substitution.hpp
+	$(CC) $(FLAGS) -c base_substitution.cpp
+
+format_exceptions.o: format_exceptions.cpp format_exceptions.hpp
+	$(CC) $(FLAGS) -c format_exceptions.cpp
 
 clean:
 	rm -rf $(OBJECTS)
