@@ -7,6 +7,7 @@ private:
     size_t size_used;
     size_t max_size;
 public:
+    Allocator();
     void makeAllocator(size_t maxSize);
     char* alloc(size_t size);
     void reset();
