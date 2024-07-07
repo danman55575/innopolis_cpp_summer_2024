@@ -1,125 +1,145 @@
 #include <gtest/gtest.h>
 #include <iostream>
 #include <string>
-#include <list>
-#include <stdexcept>
-#include <utility>
-#include <vector>
 #include <sstream>
-#include "format.hpp"
-#include "format.cpp"
+#include <utility>
+#include "bigint.hpp"
 
-TEST(ResultCorrectness, correct_format_string_result_test_1) {
-    std::string res1 = format("I love {0}!", "Innopolis");
-    std::string correct_res1 = "I love Innopolis!";
-    std::string res2 = format("  I {0} Innopolis !", "love");
-    std::string correct_res2 = "  I love Innopolis !";
-    std::string res3 = format("{0} love Innopolis!", "I");
-    std::string correct_res3 = "I love Innopolis!";
-    EXPECT_EQ(res1, correct_res1);
-    EXPECT_EQ(res2, correct_res2);
-    EXPECT_EQ(res3, correct_res3);
+TEST(ResultCorrectness, operation_plus_correctness_test_1) {
+    BigInt num1{"10000000000000000000000000009"};
+    BigInt num2{"8000000000000000000000000008519"};
+    BigInt num3{"1999999999999999929999999999"};
+    BigInt num4{"34444444444666666666666666660000000000002"};
+    BigInt num5{"-00000000000000000000000000000000000000098989845754321"};
+    BigInt res1 = num1 + num2;
+    BigInt res2 = num3 + num4;
+    BigInt res3 = num1 + num5;
+    std::string correct_res1 = "8010000000000000000000000008528\n";
+    std::string correct_res2 = "34444444444668666666666666659930000000001\n";
+    std::string correct_res3 = "9999999999999901010154245688\n";
+    std::string correct_res = correct_res1 + correct_res2 + correct_res3;
+    std::stringstream SS;
+    SS << res1 << "\n";
+    SS << res2 << "\n";
+    SS << res3 << "\n";
+    EXPECT_EQ(SS.str(), correct_res);
 }
 
-TEST(ResultCorrectness, correct_format_string_result_test_2) {
-    std::string correct_res = "Do you love Innopolis?";
-    std::string res1 = format("Do {1} love {0}?",
-    "Innopolis", "you");
-    std::string res2 = format("{0} you{1} Innopolis?",
-    "Do", " love");
-    std::string res3 = format("D{0}{1}y{0}u{1}l{0}ve{1}Inn{0}p{0}lis?",
-    "o", " ");
-    EXPECT_EQ(res1, correct_res);
-    EXPECT_EQ(res2, correct_res);
-    EXPECT_EQ(res3, correct_res);
+TEST(ResultCorrectness, operation_plus_correctness_test_2) {
+    BigInt num1{"0000000000000000000000000000"};
+    BigInt num2{"05000000000"};
+    BigInt num3{"-4055"};
+    BigInt res1 = num1 + num2;
+    BigInt res2 = num3 + num2;
+    BigInt res3 = num1 + num3;
+    std::string correct_res = "5000000000\n4999995945\n-4055\n";
+    std::stringstream SS;
+    SS << res1 << "\n" << res2 << "\n" << res3 << "\n";
+    EXPECT_EQ(SS.str(), correct_res);
 }
 
-TEST(ResultCorrectness, correct_format_string_result_test_3) {
-    std::string correct_res = "Have you heard about 108 bar?";
-    std::string res1 = format("{3} you {2} {1} {0} bar?",
-    108, "about", "heard", "Have");
-    std::string res2 = format("Have you heard about {2}{0}{1} bar?",
-    0, 8, 1);
-    std::string res3 = format("Have{1}heard{2}10{0}",
-    "8 bar?", " you ", " about ");
-    EXPECT_EQ(res1, correct_res);
-    EXPECT_EQ(res2, correct_res);
-    EXPECT_EQ(res3, correct_res);
+TEST(ResultCorrectness, operation_plus_correctness_test_3) {
+    BigInt num1{"108108108108108108108108108108108"};
+    BigInt num2{"-152"};
+    int32_t num3 = 1379737935;
+    BigInt res1 = num1 + -num2;
+    BigInt res2 = num2 + num3;
+    BigInt res3 = num1 + num3;
+    std::string correct_res = "108108108108108108108108108108260\n";
+    correct_res += "1379737783\n108108108108108108108109487846043\n";
+    std::stringstream SS;
+    SS << res1 << "\n" << res2 << "\n" << res3 << "\n";
+    EXPECT_EQ(SS.str(), correct_res);
 }
 
-TEST(ExceptionsCorrectness, correct_exception_throw_test_1) {
+TEST(ResultCorrectness, operation_minus_correctness_test_1) {
+    BigInt num1{"314159265358979323846264"};
+    BigInt num2{"444444444444444444444444"};
+    int32_t num3 = 1000000007;
+    BigInt res1 = num1 - num2;
+    BigInt res2 = -num2 - num3;
+    BigInt res3 = num1 - num3;
+    std::string correct_res = "-130285179085465120598180\n";
+    correct_res += "-444444444444445444444451\n314159265358978323846257\n";
+    std::stringstream SS;
+    SS << res1 << "\n" << res2 << "\n" << res3 << "\n";
+    EXPECT_EQ(SS.str(), correct_res);
+}
+
+TEST(ResultCorrectness, operation_minus_correctness_test_2) {
+    BigInt num1{"2718281828459045235"};
+    BigInt num2{"-0000000000000005"};
+    int32_t num3 = -45893;
+    BigInt res1 = num2 - num1;
+    BigInt res2 = num1 - num3;
+    BigInt res3 = num2 - num3;
+    std::string correct_res = "-2718281828459045240\n";
+    correct_res += "2718281828459091128\n45888\n";
+    std::stringstream SS;
+    SS << res1 << "\n" << res2 << "\n" << res3 << "\n";
+    EXPECT_EQ(SS.str(), correct_res);
+}
+
+TEST(ResultCorrectness, operation_mul_correctness_test_1) {
+    BigInt num1{"3959395939593"};
+    BigInt num2{"-790985"};
+    int32_t num3 = 50035;
+    BigInt res1 = num1 * num2;
+    BigInt res2 = num1 * num3;
+    BigInt res3 = num2 * num3;
+    std::string correct_res = "-3131822797278969105\n";
+    correct_res += "198108375837535755\n-39576934475\n";
+    std::stringstream SS;
+    SS << res1 << "\n" << res2 << "\n" << res3 << "\n";
+    EXPECT_EQ(SS.str(), correct_res);
+}
+
+TEST(ResultCorrectness, operation_mul_correctness_test_2) {
+    BigInt num1{"989758453984"};
+    BigInt num2{"909234545"};
+    int32_t num3 = 0;
+    BigInt res1 = num1 * num2;
+    BigInt res2 = num1 * num3;
+    BigInt res3 = num2 * num3;
+    std::string correct_res = "899922577568045677280\n0\n0\n";
+    std::stringstream SS;
+    SS << res1 << "\n" << res2 << "\n" << res3 << "\n";
+    EXPECT_EQ(SS.str(), correct_res);
+}
+
+TEST(ResultCorrectness, operation_mul_correctness_test_3) {
+    BigInt num1{"-00000005000000"};
+    BigInt num2{"-0001282565121024"};
+    int32_t num3 = 392781243;
+    BigInt res1 = num1 * num2;
+    BigInt res2 = num2 * num3;
+    BigInt res3 = num1 * num3;
+    std::string correct_res = "6412825605120000000\n";
+    correct_res += "-503767522464252152832\n-1963906215000000\n";
+    std::stringstream SS;
+    SS << res1 << "\n" << res2 << "\n" << res3 << "\n";
+    EXPECT_EQ(SS.str(), correct_res);
+}
+
+TEST(ExceptionCorrectness, invalid_string_test_1) {
     try {
-        std::string res = format("What a wonde{1rful day!");
-    } catch (const SyntaxException& se) {
-        EXPECT_EQ(se.what(), "Unexpected symbol 'r' in curly braces");
+        BigInt num{""};
+    } catch (const std::invalid_argument& err) {
+        std::string msg = "Empty string cannot be converted to type BigInt";
+        EXPECT_EQ(err.what(), msg);
+    } catch(...) {
+        EXPECT_EQ("exception", "invalid_argument");
+    }
+}
+
+TEST(ExceptionCorrectness, invalid_string_test_2) {
+    try {
+        BigInt num{"389t8"};
+    } catch (const std::out_of_range& err) {
+        std::string msg = "Unexpected symbol at position 4";
+        EXPECT_EQ(err.what(), msg);
     } catch (...) {
-        EXPECT_EQ("Exception", "SyntaxException");
-    }
-}
-
-TEST(ExceptionsCorrectness, correct_exception_throw_test_2) {
-    try {
-        std::string res = format("Segment t{1}ree is used often",
-        13500, "r");
-    } catch (const MissingArgumentValueException& mave) {
-        EXPECT_EQ(mave.what(), "Argument's label 0 is not found");
-    } catch(...) {
-        EXPECT_EQ("Exception", "MissingArgumentValueException");
-    }
-}
-
-TEST(ExceptionsCorrectness, correct_exception_throw_test_3) {
-    try {
-        std::string res = format("Compiler} does not understand me...", 5);
-    } catch (const SyntaxException& se) {
-        EXPECT_EQ(se.what(), "Unexpected symbol '}'");
-    } catch(...) {
-        EXPECT_EQ("Exception", "SyntaxException");
-    }
-}
-
-TEST(ExceptionsCorrectness, correct_exception_throw_test_4) {
-    try {
-        std::string res = format("My secret is {}", 50, "I am");
-    } catch (const SyntaxException& se) {
-        EXPECT_EQ(se.what(), "Unexpected symbol '}'");
-    } catch(...) {
-        EXPECT_EQ("Exception", "SyntaxException");
-    }
-}
-
-TEST(ExceptionsCorrectness, correct_exception_throw_test_5) {
-    try {
-        std::string res = format("{1001} of red roses are in Linux", "Yes");
-    } catch (const ArgumentQuantityException& aqe) {
-        EXPECT_EQ(aqe.what(), "Amount of arguments cannot exceed 1000");
-    } catch(...) {
-        EXPECT_EQ("Exception", "ArgumentQuantityException");
-    }
-}
-
-TEST(ExceptionsCorrectness, correct_exception_throw_test_6) {
-    try {
-        std::string res = format("Good {0} over comprehensive {1}",
-        "mind");
-    } catch (const ArgumentQuantityException& aqe) {
-        EXPECT_EQ(aqe.what(), "Number of arguments is less than 1");
-    } catch(...) {
-        EXPECT_EQ("Exception", "ArgumentQuantityException");
-    }
-}
-
-TEST(ExceptionsCorrectness, correct_exception_throw_test_7) {
-    try {
-        std::string res = format("{0} {1} {2} {5} {7}?",
-        "Do", "you", "have", "night", "work");
-    } catch (const MissingArgumentValueException& mave) {
-        EXPECT_EQ(mave.what(), "Argument's label 3 is not found");
-        std::string res = "Exception is related";
-        res += " to unexpected labelling of the arguments";
-        EXPECT_EQ(mave.info(), res);
-    } catch(...) {
-        EXPECT_EQ("Exception", "MissingArgumentValueException");
+        EXPECT_EQ("exception", "invalid_argument");
     }
 }
 

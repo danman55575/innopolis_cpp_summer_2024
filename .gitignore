@@ -1,4 +1,4 @@
-*.out
-*.o
-myapp
 .vscode
+*.o
+*.out
+myapp
