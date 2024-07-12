@@ -1,145 +1,324 @@
 #include <gtest/gtest.h>
 #include <iostream>
+#include <algorithm>
+#include <vector>
+#include <memory>
+#include <stdexcept>
 #include <string>
-#include <sstream>
-#include <utility>
-#include "bigint.hpp"
+#include "avl.hpp"
 
-TEST(ResultCorrectness, operation_plus_correctness_test_1) {
-    BigInt num1{"10000000000000000000000000009"};
-    BigInt num2{"8000000000000000000000000008519"};
-    BigInt num3{"1999999999999999929999999999"};
-    BigInt num4{"34444444444666666666666666660000000000002"};
-    BigInt num5{"-00000000000000000000000000000000000000098989845754321"};
-    BigInt res1 = num1 + num2;
-    BigInt res2 = num3 + num4;
-    BigInt res3 = num1 + num5;
-    std::string correct_res1 = "8010000000000000000000000008528\n";
-    std::string correct_res2 = "34444444444668666666666666659930000000001\n";
-    std::string correct_res3 = "9999999999999901010154245688\n";
-    std::string correct_res = correct_res1 + correct_res2 + correct_res3;
-    std::stringstream SS;
-    SS << res1 << "\n";
-    SS << res2 << "\n";
-    SS << res3 << "\n";
-    EXPECT_EQ(SS.str(), correct_res);
+TEST(BalancingCorrectness, balanced_test_1) {
+    avl<std::string, int> my_map(
+        {
+            {"banana", 9},
+            {"apple", 5},
+            {"apricot", 10},
+            {"orange", 11},
+            {"lemon", 20},
+            {"pear", 50},
+            {"cherry", 35},
+            {"tomato", 38},
+            {"plum", 32},
+            {"tangerine", 33},
+            {"almond", 34},
+            {"walnut", 14},
+            {"grapefruit", 100},
+            {"pomegranate", 145}
+        });
+    EXPECT_EQ(true, my_map.is_balanced());
 }
 
-TEST(ResultCorrectness, operation_plus_correctness_test_2) {
-    BigInt num1{"0000000000000000000000000000"};
-    BigInt num2{"05000000000"};
-    BigInt num3{"-4055"};
-    BigInt res1 = num1 + num2;
-    BigInt res2 = num3 + num2;
-    BigInt res3 = num1 + num3;
-    std::string correct_res = "5000000000\n4999995945\n-4055\n";
-    std::stringstream SS;
-    SS << res1 << "\n" << res2 << "\n" << res3 << "\n";
-    EXPECT_EQ(SS.str(), correct_res);
+TEST(BalancingCorrectness, balancing_test_2) {
+    avl<int, std::string> my_map(
+        {
+            {-100, "Python"},
+            {100, "C++"},
+            {80, "Java"},
+            {90, "Rust"},
+            {-25, "JavaScript"},
+            {0, "Julia"},
+            {200, "C"},
+            {500, "B"},
+            {1000, "A"},
+            {5000, "Assembler"},
+            {10000, "Binary code"},
+            {3000, "Fortran"},
+            {-50000, "HTML"},
+            {20000, "CSS"},
+            {-30, "Ruby"},
+            {70, "Haskell"},
+            {1001101, "Linux"}
+        });
+    EXPECT_EQ(true, my_map.is_balanced());
+    EXPECT_EQ(false, my_map.empty());
+    EXPECT_EQ(17, my_map.size());
 }
 
-TEST(ResultCorrectness, operation_plus_correctness_test_3) {
-    BigInt num1{"108108108108108108108108108108108"};
-    BigInt num2{"-152"};
-    int32_t num3 = 1379737935;
-    BigInt res1 = num1 + -num2;
-    BigInt res2 = num2 + num3;
-    BigInt res3 = num1 + num3;
-    std::string correct_res = "108108108108108108108108108108260\n";
-    correct_res += "1379737783\n108108108108108108108109487846043\n";
-    std::stringstream SS;
-    SS << res1 << "\n" << res2 << "\n" << res3 << "\n";
-    EXPECT_EQ(SS.str(), correct_res);
+TEST(InsertionCorrectness, insert_test_1) {
+    avl<std::string, int> my_map(
+        {
+            {"banana", 9},
+            {"apple", 5},
+            {"apricot", 10},
+            {"orange", 11},
+            {"lemon", 20},
+            {"pear", 50},
+            {"cherry", 35},
+            {"tomato", 38},
+            {"plum", 32}
+        });
+    my_map.insert({"pomegranate", 145});
+    my_map.insert({"grapefruit", 100});
+    my_map.insert({"walnut", 14});
+    my_map.insert({"almond", 34});
+    my_map.insert({"tangerine", 33});
+    EXPECT_EQ(my_map["walnut"], 14);
+    EXPECT_EQ(my_map["grapefruit"], 100);
+    EXPECT_EQ(my_map["pomegranate"], 145);
+    EXPECT_EQ(my_map["tangerine"], 33);
+    EXPECT_EQ(my_map["almond"], 34);
 }
 
-TEST(ResultCorrectness, operation_minus_correctness_test_1) {
-    BigInt num1{"314159265358979323846264"};
-    BigInt num2{"444444444444444444444444"};
-    int32_t num3 = 1000000007;
-    BigInt res1 = num1 - num2;
-    BigInt res2 = -num2 - num3;
-    BigInt res3 = num1 - num3;
-    std::string correct_res = "-130285179085465120598180\n";
-    correct_res += "-444444444444445444444451\n314159265358978323846257\n";
-    std::stringstream SS;
-    SS << res1 << "\n" << res2 << "\n" << res3 << "\n";
-    EXPECT_EQ(SS.str(), correct_res);
+TEST(InsertionCorrectness, insert_test_2) {
+    avl<int, std::string> my_map({});
+    my_map.insert({0, "Julia"});
+    my_map.insert({200, "C"});
+    my_map.insert({100, "C++"});
+    my_map.insert({70, "Haskell"});
+    my_map.insert({1001101, "Linux"});
+    EXPECT_EQ(my_map.find(0)->second, "Julia");
+    EXPECT_EQ(my_map.find(100)->second, "C++");
+    EXPECT_EQ(my_map.find(1001101)->second, "Linux");
 }
 
-TEST(ResultCorrectness, operation_minus_correctness_test_2) {
-    BigInt num1{"2718281828459045235"};
-    BigInt num2{"-0000000000000005"};
-    int32_t num3 = -45893;
-    BigInt res1 = num2 - num1;
-    BigInt res2 = num1 - num3;
-    BigInt res3 = num2 - num3;
-    std::string correct_res = "-2718281828459045240\n";
-    correct_res += "2718281828459091128\n45888\n";
-    std::stringstream SS;
-    SS << res1 << "\n" << res2 << "\n" << res3 << "\n";
-    EXPECT_EQ(SS.str(), correct_res);
+TEST(EraseCorrectness, erase_test_1) {
+    avl<std::string, int> my_map(
+        {
+            {"banana", 9},
+            {"apple", 5},
+            {"apricot", 10},
+            {"orange", 11},
+            {"lemon", 20},
+            {"pear", 50},
+            {"cherry", 35},
+            {"tomato", 38},
+            {"plum", 32},
+            {"tangerine", 33},
+            {"almond", 34},
+            {"walnut", 14},
+            {"grapefruit", 100},
+            {"pomegranate", 145}
+        });
+    my_map.erase("banana");
+    my_map.erase("pear");
+    EXPECT_EQ(my_map.contains("banana"), false);
+    EXPECT_EQ(my_map.contains("pear"), false);
+    EXPECT_EQ(my_map.contains("orange"), true);
+    my_map.erase("orange");
+    EXPECT_EQ(my_map.contains("orange"), false);
+    my_map.erase("apple");
+    my_map.erase("almond");
+    my_map.erase("tangerine");
+    my_map.erase("cherry");
+    my_map.erase("apple");
+    EXPECT_EQ(my_map.size(), 7);
 }
 
-TEST(ResultCorrectness, operation_mul_correctness_test_1) {
-    BigInt num1{"3959395939593"};
-    BigInt num2{"-790985"};
-    int32_t num3 = 50035;
-    BigInt res1 = num1 * num2;
-    BigInt res2 = num1 * num3;
-    BigInt res3 = num2 * num3;
-    std::string correct_res = "-3131822797278969105\n";
-    correct_res += "198108375837535755\n-39576934475\n";
-    std::stringstream SS;
-    SS << res1 << "\n" << res2 << "\n" << res3 << "\n";
-    EXPECT_EQ(SS.str(), correct_res);
-}
-
-TEST(ResultCorrectness, operation_mul_correctness_test_2) {
-    BigInt num1{"989758453984"};
-    BigInt num2{"909234545"};
-    int32_t num3 = 0;
-    BigInt res1 = num1 * num2;
-    BigInt res2 = num1 * num3;
-    BigInt res3 = num2 * num3;
-    std::string correct_res = "899922577568045677280\n0\n0\n";
-    std::stringstream SS;
-    SS << res1 << "\n" << res2 << "\n" << res3 << "\n";
-    EXPECT_EQ(SS.str(), correct_res);
-}
-
-TEST(ResultCorrectness, operation_mul_correctness_test_3) {
-    BigInt num1{"-00000005000000"};
-    BigInt num2{"-0001282565121024"};
-    int32_t num3 = 392781243;
-    BigInt res1 = num1 * num2;
-    BigInt res2 = num2 * num3;
-    BigInt res3 = num1 * num3;
-    std::string correct_res = "6412825605120000000\n";
-    correct_res += "-503767522464252152832\n-1963906215000000\n";
-    std::stringstream SS;
-    SS << res1 << "\n" << res2 << "\n" << res3 << "\n";
-    EXPECT_EQ(SS.str(), correct_res);
-}
-
-TEST(ExceptionCorrectness, invalid_string_test_1) {
+TEST(EraseCorrectness, erase_test_2) {
+    avl<int, std::string> my_map(
+        {
+            {-100, "Python"},
+            {100, "C++"},
+            {80, "Java"},
+            {90, "Rust"},
+            {-25, "JavaScript"},
+            {0, "Julia"},
+            {200, "C"},
+            {500, "B"},
+            {1000, "A"},
+            {5000, "Assembler"},
+            {10000, "Binary code"},
+            {3000, "Fortran"},
+            {-50000, "HTML"},
+            {20000, "CSS"},
+            {-30, "Ruby"},
+            {70, "Haskell"},
+            {1001101, "Linux"}
+        });
+    my_map.erase(20000);
+    my_map.erase(80);
+    my_map.erase(-30);
+    my_map.erase(70);
+    my_map.erase(80);
+    my_map.erase(-100);
+    my_map.erase(80);
+    EXPECT_EQ(my_map.size(), 12);
+    EXPECT_EQ(my_map.find(80), my_map.end());
+    EXPECT_EQ(my_map.find(20000), my_map.end());
+    EXPECT_EQ(my_map.find(70), my_map.end());
     try {
-        BigInt num{""};
-    } catch (const std::invalid_argument& err) {
-        std::string msg = "Empty string cannot be converted to type BigInt";
-        EXPECT_EQ(err.what(), msg);
-    } catch(...) {
-        EXPECT_EQ("exception", "invalid_argument");
+        std::string value = my_map.at(-100);
+    } catch (const std::out_of_range& err) {
+        std::string msg = err.what();
+        EXPECT_EQ(msg, "Key is not in the map!");
+    } catch (...) {
+        EXPECT_EQ("Exception", "Out of range");
     }
 }
 
-TEST(ExceptionCorrectness, invalid_string_test_2) {
+TEST(FindCorrectness, correct_find_operation_test_1) {
+    avl<std::string, int> my_map(
+        {
+            {"banana", 9},
+            {"apple", 5},
+            {"apricot", 10},
+            {"orange", 11},
+            {"lemon", 20},
+            {"pear", 50},
+            {"cherry", 35},
+            {"tomato", 38},
+            {"plum", 32},
+            {"tangerine", 33},
+            {"almond", 34},
+            {"walnut", 14},
+            {"grapefruit", 100},
+            {"pomegranate", 145}
+        });
+    {
+        auto iter = my_map.find("lemon");
+        EXPECT_EQ(iter->first, "lemon");
+        EXPECT_EQ(iter->second, 20);
+    }
+    {
+        auto iter = my_map.find("walnut");
+        EXPECT_EQ(iter->first, "walnut");
+        EXPECT_EQ(iter->second, 14);
+    }
+    {
+        auto iter = my_map.find("pineapple");
+        EXPECT_EQ(iter, my_map.end());
+    }
+}
+
+TEST(FindCorrectness, correct_find_operation_test_2) {
+    avl<int, std::string> my_map(
+        {
+            {-100, "Python"},
+            {100, "C++"},
+            {80, "Java"},
+            {90, "Rust"},
+            {-25, "JavaScript"},
+            {0, "Julia"},
+            {200, "C"},
+            {500, "B"},
+            {1000, "A"},
+            {5000, "Assembler"},
+            {10000, "Binary code"},
+            {3000, "Fortran"},
+            {-50000, "HTML"},
+            {20000, "CSS"},
+            {-30, "Ruby"},
+            {70, "Haskell"},
+            {1001101, "Linux"}
+        });
     try {
-        BigInt num{"389t8"};
+        std::string value = my_map.at(50);
     } catch (const std::out_of_range& err) {
-        std::string msg = "Unexpected symbol at position 4";
-        EXPECT_EQ(err.what(), msg);
+        std::string msg = err.what();
+        EXPECT_EQ(msg, "Key is not in the map!");
     } catch (...) {
-        EXPECT_EQ("exception", "invalid_argument");
+        EXPECT_EQ("Exception", "Out of range");
+    }
+    {
+        auto iter = my_map.find(100);
+        EXPECT_EQ(iter->first, 100);
+        EXPECT_EQ(iter->second, "C++");
+        ++iter;
+        EXPECT_EQ(iter->first, 200);
+        EXPECT_EQ(iter->second, "C");
+    }
+    {
+        auto iter = my_map.find(10000);
+        EXPECT_EQ(iter->first, 10000);
+        EXPECT_EQ(iter->second, "Binary code");
+        --iter;
+        EXPECT_EQ(iter->first, 5000);
+        EXPECT_EQ(iter->second, "Assembler");
+    }
+}
+
+TEST(IterationCorrectness, iteration_correctness_test_1) {
+    avl<std::string, int> my_map(
+        {
+            {"banana", 9},
+            {"apple", 5},
+            {"apricot", 10},
+            {"orange", 11},
+            {"lemon", 20},
+            {"pear", 50},
+            {"cherry", 35},
+            {"tomato", 38},
+            {"plum", 32},
+            {"tangerine", 33},
+            {"almond", 34},
+            {"walnut", 14},
+            {"grapefruit", 100},
+            {"pomegranate", 145}
+        });
+    auto iter = my_map.find("banana");
+    std::vector<std::string> key_sorted = {
+        "banana",
+        "cherry",
+        "grapefruit",
+        "lemon",
+        "orange",
+        "pear",
+        "plum",
+        "pomegranate",
+        "tangerine",
+        "tomato",
+        "walnut"
+    };
+    int index = 0;
+    while (iter != my_map.end()) {
+        EXPECT_EQ(iter->first, key_sorted[index]);
+        index += 1;
+        ++iter;
+    }
+}
+
+TEST(IterationCorrectness, iteration_correctness_test_2) {
+    avl<int, std::string> my_map(
+        {
+            {-100, "Python"},
+            {100, "C++"},
+            {80, "Java"},
+            {90, "Rust"},
+            {-25, "JavaScript"},
+            {0, "Julia"},
+            {200, "C"},
+            {500, "B"},
+            {1000, "A"},
+            {5000, "Assembler"},
+            {10000, "Binary code"},
+            {3000, "Fortran"},
+            {-50000, "HTML"},
+            {20000, "CSS"},
+            {-30, "Ruby"},
+            {70, "Haskell"},
+            {1001101, "Linux"}
+        });
+    std::vector<std::string> values = {
+        "Linux", "CSS", "Binary code", "Assembler", "Fortran",
+        "A", "B", "C", "C++", "Rust", "Java", "Haskell",
+        "Julia", "JavaScript", "Ruby", "Python", "HTML"
+    };
+    auto iter = my_map.rbegin();
+    int index = 0;
+    while (iter != my_map.rend()) {
+        EXPECT_EQ(iter->second, values[index]);
+        index += 1;
+        ++iter;
     }
 }
 
