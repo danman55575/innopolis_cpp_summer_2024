@@ -1,0 +1,4 @@
+.vscode/
+build/
+cjson.egg-info/
+dist/
